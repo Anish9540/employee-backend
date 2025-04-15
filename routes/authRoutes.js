@@ -6,8 +6,9 @@ const router = express.Router();
 
 router.post('/signup', signup);
 router.post('/login', login);
-router.post('/logout', logout);
+router.post('/logout', userAuth, logout);
 router.patch('/updateUser', userAuth, updateUser);
+//For learning I created prfile 
 router.get('/profile', userAuth, profile);
 
 module.exports = router;

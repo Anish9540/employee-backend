@@ -1,14 +1,14 @@
-const { isJWT } = require('validator');
+// const { isJWT } = require('validator');
 const User = require('../schema/User');
 const bcrypt = require('bcrypt');
 var jwt = require("jsonwebtoken");
-const { userAuth } = require("../middleware/userAuth")
+// const { userAuth } = require("../middleware/userAuth")
 
 const signup = async (req, res) => {
-    const { name, email, password } = req.body;
+    const { name, email, password, roleStatus } = req.body;
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
-        const user = new User({ name, email, password: hashedPassword });
+        const user = new User({ name, email, password: hashedPassword, roleStatus });
         await user.save();
         res.status(201).json({ message: 'User created successfully' });
     } catch (error) {
@@ -76,6 +76,8 @@ const login = async (req, res) => {
 //note other api is not secure we need to create a middleware so that other middleware is secure
 
 //note again after forming middlew we need to update below code 
+
+//imp revide this concept for auth middleware
 const profile = async (req, res) => {
     try {
         const user = req.user;

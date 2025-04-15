@@ -17,6 +17,8 @@ const mongoose = require('mongoose');
 //         },
 //     }
 // );
+
+
 const userSchema = new mongoose.Schema(
     {
         name: {
@@ -31,6 +33,11 @@ const userSchema = new mongoose.Schema(
         password: {
             type: String,
             required: true,
+        },
+        roleStatus: {
+            type: String,
+            enum: ['BOTP Employee', 'Manager'], // <-- Allowed values
+            default: 'BOTP Employee',          // <-- Updated default
         },
         role: {
             type: String,
@@ -47,14 +54,15 @@ const userSchema = new mongoose.Schema(
         },
         department: {
             type: String,
-            // required: true,
+            default: 'General',
         },
         joinDate: {
             type: Date,
-            // required: true,
+            default: Date.now,
         },
         img: {
             type: String,
+            default: 'General'
         },
         performanceMetrics: {
             leetcodeScore: { type: Number, default: 0 },
@@ -78,15 +86,6 @@ const userSchema = new mongoose.Schema(
     }
 );
 
-// userSchema.methods.getJWT = async function () {
-//     const user = this;
-
-//     const token = await jwt.sign({ _id: user._id }, "DEV@Tinder$790", {
-//         expiresIn: "7d",
-//     });
-
-//     return token;
-// };
 
 const User = mongoose.model('User', userSchema);
 
