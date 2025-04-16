@@ -117,16 +117,75 @@ const profile = async (req, res) => {
 //     }
 // };
 
+// const updateUser = async (req, res) => {
+//     const updates = req.body;
+
+//     // Extend allowed updates to include learningCertificatesDone and coursesCompleted
+//     const allowedUpdates = ['hackerrankScore', 'leetcodeScore', 'learningCertificatesDone', 'coursesCompleted'];
+//     const updateFields = {};
+
+//     // Check if the request contains valid fields to update
+//     for (let key of allowedUpdates) {
+//         if (key in updates) {
+//             updateFields[`performanceMetrics.${key}`] = updates[key]; // Update within performanceMetrics
+//         }
+//     }
+
+//     try {
+//         const userId = req.user._id; // From middleware
+
+//         const updatedUser = await User.findByIdAndUpdate(
+//             userId,
+//             { $set: updateFields }, // Update only the selected fields inside performanceMetrics
+//             { new: true } // Return the updated user
+//         );
+
+//         if (!updatedUser) {
+//             return res.status(404).json({ message: 'User not found' });
+//         }
+
+//         res.status(200).json({
+//             message: 'User updated successfully',
+//             user: updatedUser
+//         });
+//     } catch (error) {
+//         res.status(500).json({ error: error.message });
+//     }
+// };
 
 const updateUser = async (req, res) => {
-    const updates = req.body;
+    const { userId, performanceMetrics } = req.body;
+
+    // Define what fields inside performanceMetrics are allowed to be updated
+    const allowedUpdates = [
+        'hackerrankScore',
+        'leetcodeScore',
+        'learningCertificatesDone',
+        'coursesCompleted',
+        'week1Score',
+        'week2Score',
+        'week3Score',
+        'assignment1Percentage',
+        'assignment2Percentage',
+        'assignment3Percentage',
+        'EFTestScore',
+        'mockEvaluation1Score',
+        'mockEvaluation2Score',
+        'mockEvaluation3Score',
+    ];
+
+    const updateFields = {};
+
+    for (let key of allowedUpdates) {
+        if (performanceMetrics && key in performanceMetrics) {
+            updateFields[`performanceMetrics.${key}`] = performanceMetrics[key];
+        }
+    }
 
     try {
-        const userId = req.user._id; // From middleware
-
         const updatedUser = await User.findByIdAndUpdate(
             userId,
-            { $set: updates },
+            { $set: updateFields },
             { new: true }
         );
 
@@ -134,14 +193,15 @@ const updateUser = async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        res.status(200).json({
+        return res.status(200).json({
             message: 'User updated successfully',
             user: updatedUser
         });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        return res.status(500).json({ error: error.message });
     }
 };
+
 
 
 const logout = async (req, res) => {
