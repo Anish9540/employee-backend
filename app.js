@@ -5,6 +5,10 @@ const cookieParser = require("cookie-parser");
 const env = require('dotenv');
 const connectDB = require('./database/connect');
 const authRoutes = require('./routes/authRoutes');
+const fileUpload = require('express-fileupload');
+
+const path = require('path');  // Add this line
+
 
 
 env.config();
@@ -16,9 +20,16 @@ app.use(
     })
 );
 
+app.use(fileUpload({
+    useTempFiles: true,
+    tempFileDir: '/tmp/',
+}));
 
 app.use(express.json());
 app.use(cookieParser());
+
+// app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use('/api/auth', authRoutes);
 

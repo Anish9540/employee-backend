@@ -2,6 +2,8 @@
 const User = require('../schema/User');
 const bcrypt = require('bcrypt');
 var jwt = require("jsonwebtoken");
+const path = require('path');
+const fs = require('fs');
 // const { userAuth } = require("../middleware/userAuth")
 
 const signup = async (req, res) => {
@@ -89,75 +91,110 @@ const profile = async (req, res) => {
 }
 
 
-//invalid code below 
+// const updateUser = async (req, res) => {
+//     const {
+//         userId,
+//         name,
+//         email,
+//         role,
+//         roleStatus,
+//         department,
+//         status,
+//         score,
+//         performanceMetrics
+//     } = req.body;
 
-// const updateUser = userAuth, async (req, res) => {
-//     const updates = req.body; // Example: { name, address, phone }
+//     console.log('🔍 Received userId:', userId);
+
+//     if (!userId) {
+//         return res.status(400).json({ message: 'Missing userId in request body' });
+//     }
+
+//     // Only these fields inside performanceMetrics are allowed to be updated
+//     const allowedPerformanceUpdates = [
+//         'hackerrankScore',
+//         'leetcodeScore',
+//         'learningCertificatesDone',
+//         'coursesCompleted',
+//         'week1Score',
+//         'week2Score',
+//         'week3Score',
+//         'assignment1Percentage',
+//         'assignment2Percentage',
+//         'assignment3Percentage',
+//         'EFTestScore',
+//         'mockEvaluation1Score',
+//         'mockEvaluation2Score',
+//         'mockEvaluation3Score',
+//     ];
+
+//     const updateFields = {};
+
+//     // ✅ Handle nested performanceMetrics fields
+//     if (performanceMetrics && typeof performanceMetrics === 'object') {
+//         for (let key of allowedPerformanceUpdates) {
+//             if (key in performanceMetrics) {
+//                 updateFields[`performanceMetrics.${key}`] = performanceMetrics[key];
+//             }
+//         }
+//     }
+
+//     // ✅ Handle top-level user fields
+//     if (name) updateFields.name = name;
+//     if (email) updateFields.email = email;
+//     if (role) updateFields.role = role;
+//     if (roleStatus) updateFields.roleStatus = roleStatus;
+//     if (department) updateFields.department = department;
+//     if (status) updateFields.status = status;
+//     if (typeof score !== 'undefined') updateFields.score = score;
 
 //     try {
-//         // const userId = req.userId; // This should be set in your auth middleware
-//         const userId = '67fa17346c30661279949770';
+//         const userExists = await User.findById(userId);
+
+//         if (!userExists) {
+//             console.log('❌ No user found with ID:', userId);
+//             return res.status(404).json({ message: 'User not found' });
+//         }
 
 //         const updatedUser = await User.findByIdAndUpdate(
 //             userId,
-//             { $set: updates },
+//             { $set: updateFields },
 //             { new: true }
 //         );
 
-//         if (!updatedUser) {
-//             return res.status(404).json({ message: 'User not found' });
-//         }
-
-//         res.status(200).json({
+//         return res.status(200).json({
 //             message: 'User updated successfully',
 //             user: updatedUser
 //         });
+
 //     } catch (error) {
-//         res.status(500).json({ error: error.message });
+//         console.error('❗ Error updating user:', error);
+//         return res.status(500).json({ error: error.message });
 //     }
 // };
 
-// const updateUser = async (req, res) => {
-//     const updates = req.body;
 
-//     // Extend allowed updates to include learningCertificatesDone and coursesCompleted
-//     const allowedUpdates = ['hackerrankScore', 'leetcodeScore', 'learningCertificatesDone', 'coursesCompleted'];
-//     const updateFields = {};
-
-//     // Check if the request contains valid fields to update
-//     for (let key of allowedUpdates) {
-//         if (key in updates) {
-//             updateFields[`performanceMetrics.${key}`] = updates[key]; // Update within performanceMetrics
-//         }
-//     }
-
-//     try {
-//         const userId = req.user._id; // From middleware
-
-//         const updatedUser = await User.findByIdAndUpdate(
-//             userId,
-//             { $set: updateFields }, // Update only the selected fields inside performanceMetrics
-//             { new: true } // Return the updated user
-//         );
-
-//         if (!updatedUser) {
-//             return res.status(404).json({ message: 'User not found' });
-//         }
-
-//         res.status(200).json({
-//             message: 'User updated successfully',
-//             user: updatedUser
-//         });
-//     } catch (error) {
-//         res.status(500).json({ error: error.message });
-//     }
-// };
 
 const updateUser = async (req, res) => {
-    const { userId, performanceMetrics } = req.body;
+    const {
+        userId,
+        name,
+        email,
+        role,
+        roleStatus,
+        department,
+        status,
+        score,
+        performanceMetrics
+    } = req.body;
 
-    // Define what fields inside performanceMetrics are allowed to be updated
-    const allowedUpdates = [
+    console.log('🔍 Received userId:', userId);
+
+    if (!userId) {
+        return res.status(400).json({ message: 'Missing userId in request body' });
+    }
+
+    const allowedPerformanceUpdates = [
         'hackerrankScore',
         'leetcodeScore',
         'learningCertificatesDone',
@@ -176,33 +213,69 @@ const updateUser = async (req, res) => {
 
     const updateFields = {};
 
-    for (let key of allowedUpdates) {
-        if (performanceMetrics && key in performanceMetrics) {
-            updateFields[`performanceMetrics.${key}`] = performanceMetrics[key];
+    // ✅ Handle nested performanceMetrics fields
+    if (performanceMetrics && typeof performanceMetrics === 'object') {
+        for (let key of allowedPerformanceUpdates) {
+            if (key in performanceMetrics) {
+                updateFields[`performanceMetrics.${key}`] = performanceMetrics[key];
+            }
+        }
+    }
+
+    // ✅ Handle top-level user fields
+    if (name) updateFields.name = name;
+    if (email) updateFields.email = email;
+    if (role) updateFields.role = role;
+    if (roleStatus) updateFields.roleStatus = roleStatus;
+    if (department) updateFields.department = department;
+    if (status) updateFields.status = status;
+    if (typeof score !== 'undefined') updateFields.score = score;
+
+    // ✅ Handle profile image upload via express-fileupload
+    if (req.files && req.files.img) {
+        const image = req.files.img; // ⬅️ img not profileImage
+        const uploadDir = path.join(__dirname, '..', 'uploads');
+
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir);
+        }
+
+        const imageName = `${Date.now()}-${image.name}`;
+        const uploadPath = path.join(uploadDir, imageName);
+
+        try {
+            await image.mv(uploadPath);
+            updateFields.img = `/uploads/${imageName}`; // ✅ Save to .img field
+            console.log('✅ Image uploaded:', updateFields.img);
+        } catch (err) {
+            console.error('❌ Image upload error:', err);
+            return res.status(500).json({ message: 'Image upload failed', error: err.message });
         }
     }
 
     try {
+        const userExists = await User.findById(userId);
+        if (!userExists) {
+            console.log('❌ No user found with ID:', userId);
+            return res.status(404).json({ message: 'User not found' });
+        }
+
         const updatedUser = await User.findByIdAndUpdate(
             userId,
             { $set: updateFields },
             { new: true }
         );
 
-        if (!updatedUser) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
         return res.status(200).json({
             message: 'User updated successfully',
             user: updatedUser
         });
+
     } catch (error) {
+        console.error('❗ Error updating user:', error);
         return res.status(500).json({ error: error.message });
     }
 };
-
-
 
 const logout = async (req, res) => {
     try {
