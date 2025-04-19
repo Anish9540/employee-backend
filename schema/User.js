@@ -17,8 +17,8 @@ const userSchema = new mongoose.Schema(
         },
         roleStatus: {
             type: String,
-            enum: ['BOTP Employee', 'Manager'], // <-- Allowed values
-            default: 'BOTP Employee',          // <-- Updated default
+            enum: ['BOTP Employee', 'Manager'],
+            default: 'BOTP Employee',
         },
         role: {
             type: String,

@@ -6,8 +6,9 @@ const env = require('dotenv');
 const connectDB = require('./database/connect');
 const authRoutes = require('./routes/authRoutes');
 const fileUpload = require('express-fileupload');
+require('dotenv').config();
 
-const path = require('path');  // Add this line
+const path = require('path');
 
 
 
