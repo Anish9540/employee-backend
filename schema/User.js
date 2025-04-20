@@ -17,8 +17,10 @@ const userSchema = new mongoose.Schema(
         },
         roleStatus: {
             type: String,
+            // enum: ['BOTP Employee', 'Manager'],
             enum: ['BOTP Employee', 'Manager'],
-            default: 'BOTP Employee',
+            required: true,
+            // default: 'BOTP Employee',
         },
         role: {
             type: String,
