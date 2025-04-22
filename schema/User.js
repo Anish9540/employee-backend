@@ -28,7 +28,7 @@ const userSchema = new mongoose.Schema(
         },
         status: {
             type: String,
-            enum: ['In_Progress', 'Completed', 'On_Hold'],
+            enum: ['In_Progress', 'Completed', 'Start'],
             default: 'In_Progress',
         },
         score: {

@@ -5,18 +5,37 @@ const path = require('path');
 const fs = require('fs');
 require('dotenv').config();
 
-
 const signup = async (req, res) => {
     const { name, email, password, roleStatus } = req.body;
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
         const user = new User({ name, email, password: hashedPassword, roleStatus });
         await user.save();
-        res.status(201).json({ message: 'User created successfully' });
+
+        const { password: _, ...userData } = user.toObject();
+
+        // Generate token
+        const token = jwt.sign({ _id: user._id }, "anish@dev", {
+            expiresIn: "7d",
+        });
+
+        // Send token as cookie
+        res.cookie("token", token, {
+            httpOnly: true,
+            sameSite: "Lax",
+            // secure: true // use in production with HTTPS
+        });
+
+        res.status(201).json({
+            message: "Signup successful",
+            user: userData,
+        });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
+
+
 
 const login = async (req, res) => {
     const { email, password } = req.body;
