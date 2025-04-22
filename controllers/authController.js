@@ -78,8 +78,6 @@ const profile = async (req, res) => {
 
 }
 
-
-
 const updateUser = async (req, res) => {
     const {
         userId,
